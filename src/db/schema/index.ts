@@ -98,7 +98,9 @@ export const teamsRelations = relations(teams, ({ one }) => ({
 export const plans = sqliteTable("plans", {
   id: integer("id").primaryKey().notNull(),
   name: text("name").notNull(),
-  price: real("price").notNull()
+  price: real("price").notNull(),
+  createdAt: timestamp("createdAt").notNull(),
+  updatedAt: timestamp("updatedAt").notNull(),
 });
 
 // export const subscriptions = sqliteTable("subscriptions", {
