@@ -24,4 +24,23 @@ describe("plans routes", async () => {
       expect(planInDb!.price).toBe(mockPlan.price);
     });
   });
+
+  describe("update", async () => {
+    const mockPlan = {
+      id: 1,
+      name: "premium",
+      price: 19.99,
+    };
+    it("should update an old plan", async () => {
+      const results = await createCaller({}).plans.update(mockPlan);
+      expect(results.success).toBe(true);
+      const dbPlan = await db.query.plans.findFirst(
+        {
+          where: eq(schema.plans.id, 1)
+        }
+      );
+      expect(dbPlan!.name).toEqual(mockPlan.name);
+      expect(dbPlan!.price).toEqual(mockPlan.price);
+    });
+  });
 });
