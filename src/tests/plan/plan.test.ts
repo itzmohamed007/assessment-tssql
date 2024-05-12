@@ -43,4 +43,11 @@ describe("plans routes", async () => {
       expect(dbPlan!.price).toEqual(mockPlan.price);
     });
   });
+
+  describe("read", async () => {
+    it("should at lest get one plan", async () => {
+      const results = await createCaller({}).plans.read();
+      expect(results.length).toBeGreaterThan(0);
+    });
+  });
 });
