@@ -52,5 +52,14 @@ export const plans = router({
       return {
         success: true
       }
-    })
+    }),
+  read: publicProcedure.query(async () => {
+    try {
+      return await db.query.plans.findMany();
+    } catch(error) {
+      console.log("an error occured while fetching teams, ", error);
+      return [];
+    }
+
+  })
 })
