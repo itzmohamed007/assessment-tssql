@@ -56,10 +56,30 @@ export const plans = router({
   read: publicProcedure.query(async () => {
     try {
       return await db.query.plans.findMany();
-    } catch(error) {
+    } catch (error) {
       console.log("an error occured while fetching teams, ", error);
       return [];
     }
-
-  })
+  }),
+  upgradePrice: publicProcedure.input(
+    z.object({
+      oldPlan: z.object({
+        price: z.number()
+      }),
+      newPlan: z.object({
+        price: z.number()
+      })
+    })
+  )
+    .mutation(({ input }) => {
+      const { oldPlan, newPlan } = input;
+      if (oldPlan.price >= newPlan.price) {
+        throw new trpcError({
+          code: "BAD_REQUEST"
+        });
+      }
+      return {
+        price: newPlan.price - oldPlan.price
+      };
+    })
 })
