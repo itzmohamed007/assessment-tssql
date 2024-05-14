@@ -1,17 +1,29 @@
 import { z } from "zod";
-import { publicProcedure, router, trpcError } from "../../trpc/core";
+import { protectedProcedure, publicProcedure, router, trpcError } from "../../trpc/core";
 import db, { schema } from "../../db/client";
 import { eq } from "drizzle-orm";
 
 export const plans = router({
-  create: publicProcedure.input(
+  create: protectedProcedure.input(
     // validating params
     z.object({
       name: z.string(),
       price: z.number()
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { user } ,input }) => {
       const { name, price } = input
+      const { userId } = user;
+
+      const dbUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId)
+      })
+
+      if(!dbUser!.isAdmin) {
+        throw new trpcError({
+          code: "BAD_REQUEST"
+        })
+      }
+
       const plan = await db.query.plans.findFirst({});
       // plans duplication check
       if (plan) throw new trpcError({
@@ -31,15 +43,27 @@ export const plans = router({
         success: true
       };
     }),
-  update: publicProcedure.input(
+  update: protectedProcedure.input(
     // validating params
     z.object({
       id: z.number(),
       name: z.string(),
       price: z.number()
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { user } ,input }) => {
       const { name, price, id } = input;
+      const { userId } = user;
+
+      const dbUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId)
+      })
+
+      if(!dbUser?.isAdmin) {
+        throw new trpcError({
+          code: "BAD_REQUEST"
+        })
+      }
+
       const dbPlan = db.query.plans.findFirst({
         where: eq(schema.plans.id, id)
       });
